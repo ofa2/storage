@@ -1,5 +1,5 @@
 import SimpleTokenClient, { ITokenConfig } from '@ofa2/simple-token-client';
-import { createReadStream, createWriteStream } from 'fs-extra';
+import { createReadStream, createWriteStream } from 'fs';
 import { tmpdir } from 'os';
 import { extname, resolve as pathResolve } from 'path';
 import { Response } from 'request';
@@ -18,10 +18,6 @@ export interface IStorageConfig extends ITokenConfig {
 interface IFile {
   path: string;
   originalFilename: string;
-  metadata: {
-    bucket: string;
-    path: string;
-  };
 }
 
 class StorageApi {
@@ -49,7 +45,7 @@ class StorageApi {
       formData: {
         bucket,
         path,
-        userinfo,
+        userinfo: JSON.stringify(userinfo),
         file: {
           value: createReadStream(file.path),
           options: {
@@ -98,7 +94,12 @@ class StorageApi {
     });
   }
 
-  fileUri(file: IFile) {
+  fileUri(file: {
+    metadata: {
+      bucket: string;
+      path: string;
+    };
+  }) {
     let urlObj = urlParse(this.config.baseUrl);
     let { bucket } = file.metadata;
     let { path } = file.metadata;
