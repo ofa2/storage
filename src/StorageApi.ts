@@ -94,6 +94,20 @@ class StorageApi {
     });
   }
 
+  async destoryFile({ bucket, path }: { bucket: string; path: string }) {
+    let token = await this.tokenClient.getToken();
+
+    return rp({
+      method: 'DELETE',
+      baseUrl: this.config.baseUrl,
+      uri: `/${bucket}/${path}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      json: true,
+    });
+  }
+
   fileUri(file: {
     metadata: {
       bucket: string;
